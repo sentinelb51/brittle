@@ -1,26 +1,26 @@
 # brittle
 
-A self-protecting JS/WASM engine for the browser. It runs a secret program as per-session
-**mutated bytecode** inside a custom interpreter, engineered to resist static and dynamic
-reversing in a fully client-inspectable environment. Correctness is guaranteed only for
-the guarded program; everything else serves opacity and short shelf life.
+A self-protecting JS/WASM engine for the browser. It runs a protected program as
+per-session **mutated bytecode** inside a custom interpreter, engineered to resist static
+and dynamic analysis in a fully client-inspectable environment. Correctness is guaranteed
+only for the guarded program; everything else serves opacity and short shelf life.
 
-It has two execution engines that share the same protection philosophy:
-- an **integer-ARX proof engine** for the server-rotated challenge-response (the anti-lift core), and
+It has two execution engines that share one protection philosophy:
+- an **integer-ARX proof engine** for the server-rotated challenge-response (the copy-resistance core), and
 - a **JS-value engine + `acorn` compiler** (`src/jsvm`, `src/jsc`) that takes a real JS function
   and runs it as bytecode — the obfuscator.io-style "mark a function, virtualize it" path,
   verified bit-identical to native JS (recursion, closures, objects, strings, a license check).
 
 The design is deliberately transparent — read **[docs/SPEC.md](docs/SPEC.md)** for why
-each defense holds, what defeats it, and how server rotation expires the defeat. The
-shipped artifacts (opcode maps, keys, blobs, handler core) are deliberately hostile to
+each protection holds, what overcomes it, and how server rotation expires that. The
+shipped artifacts (opcode maps, keys, blobs, handler core) are deliberately opaque to
 reading; that is the product.
 
 ## The idea in one line
 
 A server mints a fresh, environment-bound blob per session and validates a
-challenge-response the engine computes. **A dumped blob dies at the next mint.** The win
-condition is not "unbreakable" — it's that a crack expires before it's useful.
+challenge-response the engine computes. **A copied blob stops working at the next mint.**
+The success condition is not "unbreakable" — it's that any recovery expires before it's useful.
 
 ## Load-bearing invariant
 
@@ -43,7 +43,7 @@ Then open <http://localhost:8080> and click **Request & unlock**:
 - each click mints a fresh blob (new opcode map, keys, structure), runs it in the
   WASM-backed engine, and redeems the proof → **GRANTED**;
 - open devtools and click again → the debugger signal folds into the proof → **DENIED**;
-- reload → the previous session's blob is already dead.
+- reload → the previous session's blob is already expired.
 
 ## What `npm test` proves (all headless, no browser needed — 27 checks)
 
@@ -51,8 +51,8 @@ Then open <http://localhost:8080> and click **Request & unlock**:
   (recursion, closures, counters, arrays/objects, strings/templates, update expressions,
   a license check) **bit-identical to native JS**.
 - **e2e** (`test/e2e.mjs`): honest client granted; denied on wrong origin / wrong
-  fingerprint / debugger signal / patched-stub integrity / tampered blob (poisoned, never
-  throws); rotation produces distinct blobs; consumed sessions can't replay.
+  fingerprint / debugger signal / patched-stub integrity / tampered blob (returns a decoy,
+  never throws); rotation produces distinct blobs; consumed sessions can't replay.
 - **wasm** (`test/wasm.mjs`): the WASM MIX core validates, matches the JS `arx` over 100k
   vectors, keeps its key schedule in linear memory and drives MIX from there (`mix_step`,
   the live client path) bit-identically to the explicit-key form, and runs the full loop.
@@ -69,13 +69,13 @@ Then open <http://localhost:8080> and click **Request & unlock**:
 - `src/mint/` — server: mutation pass, layered/staged encryption, reference oracle,
   session lifecycle, HTTP endpoint.
 - `src/vm/` — client: blob decoder + interpreter, environment binding, fingerprint,
-  anti-analysis signal, integrity self-hash, WASM loader, protocol loader.
+  instrumentation signal, integrity self-hash, WASM loader, protocol loader.
 - `src/wasm/` — in-process WASM emitter for the MIX handler core.
-- `src/guarded/proof.js` — the demo secret program (it *is* the challenge-response).
+- `src/guarded/proof.js` — the demo protected program (it *is* the challenge-response).
 - `demo/` — the browser page. `docs/SPEC.md` — the design rationale.
 
 ## Scope
 
-In: hiding the program, making every session a different target, detecting/punishing
-tamper, binding execution to the real origin/session. Out: speed, spec compliance,
+In: hiding the program, making every session a different target, detecting and responding
+to tampering, binding execution to the real origin/session. Out: speed, spec compliance,
 running untrusted JS, and any client-only "unbreakable" claim.

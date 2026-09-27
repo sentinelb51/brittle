@@ -1,6 +1,6 @@
 // vm.js — the client half. Decode the per-session blob against the live environment and
 // execute it to produce the challenge proof. This is what ships (minus transformation and
-// the WASM lift, which wrap but do not change it).
+// the WASM offload, which wrap but do not change it).
 //
 // Key facts that make this small:
 //  * Register renaming is an identity relabeling applied uniformly, so the engine runs the
@@ -9,7 +9,7 @@
 //    origin / token / fingerprint / debugger-signal / patched-stub => wrong master =>
 //    the outer layer decrypts to noise and the proof is garbage.
 //  * Tamper policy: we NEVER throw at a check. Any inconsistency yields a deterministic
-//    poisoned proof; the server simply sees a non-match and denies service.
+//    decoy proof; the server simply sees a non-match and denies service.
 
 import { deriveMaster, masterWords, seedFor } from "../common/kdf.js";
 import { buildEnvVector } from "../common/envvec.js";
@@ -20,7 +20,7 @@ import { MAGIC, HDR, readU16, readU32 } from "../common/blobfmt.js";
 import { initState, runSlice, sealProof } from "./interp.js";
 import { mixJS } from "./mix.js";
 
-function poison(master) {
+function decoy(master) {
   // Deterministic, environment-derived, and guaranteed not to equal a real proof
   // (it never runs the guarded program). Looks like a normal proof to the wire.
   const w = masterWords(master);
@@ -55,7 +55,7 @@ export async function runBlob(blob, env, opts = {}) {
     xorStream(buf, seedFor(mw, "blob"));
 
     if (!(buf[0] === MAGIC[0] && buf[1] === MAGIC[1] && buf[2] === MAGIC[2] && buf[3] === MAGIC[3])) {
-      return poison(master); // wrong environment: outer layer produced noise
+      return decoy(master); // wrong environment: outer layer produced noise
     }
     // blob self-integrity: checksum the decoded (stored-under-outer) bytes now, before we
     // peel any inner stage layers. Folded into the proof at the end; a tampered blob (any
@@ -93,7 +93,7 @@ export async function runBlob(blob, env, opts = {}) {
       let p = 0;
       while (p < bytes.length) {
         const name = inv[bytes[p++]];
-        if (!name) throw new Error("bad opcode byte"); // caught -> poison
+        if (!name) throw new Error("bad opcode byte"); // caught -> decoy
         const kinds = operandKinds(name);
         const args = [];
         for (let i = 0; i < kinds.length; i++) {
@@ -119,6 +119,6 @@ export async function runBlob(blob, env, opts = {}) {
     }
     return sealProof(state.acc, blobChk);
   } catch {
-    return poison(master); // never throw at a check site
+    return decoy(master); // never throw at a check site
   }
 }

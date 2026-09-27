@@ -9,7 +9,7 @@
 //   4..7   TOKEN0..3      hash words of the server session token
 //   8..11  FP0..3         words of the client fingerprint hash
 //   12     NONCE          the challenge nonce (folded by the program => challenge-resp)
-//   13     SIGNAL         anti-analysis signal (CLEAN in an untampered run)
+//   13     SIGNAL         instrumentation signal (CLEAN in an untampered run)
 //   14     INTEGRITY      stub+blob integrity word (server-known)
 //   15..22 MASTER0..7     the derived master words (also the WASM key schedule)
 

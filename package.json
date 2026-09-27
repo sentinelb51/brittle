@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Self-protecting JS/WASM engine: runs a secret program as per-session-mutated bytecode, engineered to resist static and dynamic reversing in a client-inspectable environment.",
+  "description": "Self-protecting JS/WASM engine: runs a protected program as per-session-mutated bytecode, engineered to resist static and dynamic analysis in a client-inspectable environment.",
   "scripts": {
     "test": "node test/jsvm.mjs && node test/e2e.mjs && node test/wasm.mjs && node test/integration.mjs",
     "test:jsvm": "node test/jsvm.mjs",

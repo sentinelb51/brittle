@@ -10,7 +10,7 @@
 // and `signal`/`integrity` equal fixed CLEAN constants in an untampered run). So the
 // server can reproduce `master`, and therefore the whole key schedule, exactly.
 //
-// The binding property: change origin (blob lifted to another page), change fp
+// The binding property: change origin (blob copied to another page), change fp
 // (different machine), flip a debugger signal bit, or patch the stub, and `master`
 // changes -> the blob decodes to garbage AND the proof diverges. One derivation, four
 // bindings. Async only because crypto.subtle is; it runs once per load, then the hot

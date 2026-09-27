@@ -86,7 +86,7 @@ export function runSlice(state, code, { envVector, mixFn, keyWords, mixStep }) {
       }
       case "JUNK": {
         // Decoy work into a register the mutation reserved as dead. Executed for real (so
-        // it costs the reverser attention) but never feeds EMIT, so acc is unmoved — the
+        // it adds analysis overhead) but never feeds EMIT, so acc is unmoved — the
         // exact value is irrelevant. Routed through the same handler as MIX so a decoy round
         // is indistinguishable from a real one (both a WASM mix_step call on the fast path).
         const step = state.mixStep & 7;

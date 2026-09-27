@@ -4,7 +4,7 @@
 //
 // Everything is add-rotate-xor over uint32 lanes: cheap, branch-free, and it maps
 // 1:1 onto WASM i32 ops (see src/wasm/emit.js), so the sensitive MIX handler can be
-// lifted into WASM without changing a single result bit.
+// moved into WASM without changing a single result bit.
 
 export const MASK = 0xffffffff;
 

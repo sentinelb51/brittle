@@ -2,11 +2,11 @@
 // signals, folded into the key schedule and the proof. Purpose is BINDING, not unique
 // tracking: a blob minted for fingerprint X decodes to garbage on a machine with
 // fingerprint Y. The server pins the fp hash the client registered at /session, so it
-// can predict the proof; a lifted blob on different hardware cannot reproduce it.
+// can predict the proof; a copied blob on different hardware cannot reproduce it.
 //
-// Cost to reverser: to run a lifted blob they must reproduce the exact fingerprint of
-// the victim machine, or hook every signal source consistently.
-// Defeated by: spoofing all signals to match a known-good capture.
+// Cost to the analyst: to run a copied blob they must reproduce the exact fingerprint of
+// the target machine, or hook every signal source consistently.
+// Overcome by: matching every signal to a known-good capture.
 // Rotation: the next session mints against a fresh nonce/token, so a captured fp only
 // helps for a session that has already expired.
 

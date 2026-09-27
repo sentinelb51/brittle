@@ -1,7 +1,7 @@
 // integration.mjs — boot the real mint server and drive the full HTTP protocol end to
 // end using the actual client loader (browser modules degrade to clean/no-op in Node).
 //   1. honest client over HTTP is granted
-//   2. a lifted blob presented from a different origin is denied
+//   2. a copied blob presented from a different origin is denied
 //   3. two sessions mint distinct blobs (rotation) and a consumed session can't replay
 
 import assert from "node:assert/strict";
@@ -45,7 +45,7 @@ async function main() {
       ok("honest client over HTTP is granted");
     }
 
-    // 2. lifted blob replayed from a different origin
+    // 2. copied blob replayed from a different origin
     {
       // handshake as normal, but decode/run pretending we're on evil.example
       const fpHash = "00000000000000000000000000000000"; // node fingerprint stub
@@ -62,7 +62,7 @@ async function main() {
       ).json();
       assert.equal(res.ok, false);
       assert.equal(res.reason, "bad-proof");
-      ok("lifted blob presented from a different origin is denied");
+      ok("copied blob presented from a different origin is denied");
     }
 
     // 3. rotation + replay

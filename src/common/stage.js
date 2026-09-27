@@ -4,8 +4,8 @@
 // k has executed: it is folded from the live proof accumulator at the stage boundary.
 // A static dump therefore contains stage 0 in the clear (after the env layer) and every
 // later stage as ciphertext with no key present anywhere in the blob. The key is
-// *computed*, not stored — you must actually run the earlier stages, defeating a purely
-// static lift of the full program.
+// *computed*, not stored — you must actually run the earlier stages, preventing a purely
+// static extraction of the full program.
 //
 // The accumulator is identical on server (canonical run) and client (mutated run), so
 // both derive the same stage seed. It is independent of register renaming and junk,

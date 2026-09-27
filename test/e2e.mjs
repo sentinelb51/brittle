@@ -2,7 +2,7 @@
 // Mint a blob server-side, decode+run it client-side, and assert:
 //   1. honest client in the right environment  -> proof matches -> service granted
 //   2. wrong origin / fingerprint / debugger    -> proof diverges -> denied
-//   3. tampered blob                            -> poisoned, never throws -> denied
+//   3. tampered blob                            -> decoy, never throws -> denied
 //   4. rotation                                 -> same inputs, different blob + proof
 //   5. replay                                   -> a consumed session is rejected
 
@@ -44,7 +44,7 @@ async function main() {
     return svc.validate(s.id, proof);
   }
 
-  // --- 2a. wrong origin (blob lifted to attacker page) ---
+  // --- 2a. wrong origin (blob copied to another page) ---
   {
     const res = await attempt(({ env, blob }) => ({ env: { ...env, origin: "https://evil.example" }, blob }));
     assert.equal(res.ok, false);
@@ -63,7 +63,7 @@ async function main() {
   {
     const res = await attempt(({ env, blob }) => ({ env: { ...env, signal: 0x00000040 }, blob }));
     assert.equal(res.ok, false);
-    ok("a set anti-analysis signal (debugger) is denied");
+    ok("a set instrumentation signal (debugger) is denied");
   }
 
   // --- 2d. patched stub (integrity word differs) ---
@@ -80,7 +80,7 @@ async function main() {
       return { env, blob };
     });
     assert.equal(res.ok, false);
-    ok("a tampered blob is poisoned (no throw) and denied");
+    ok("a tampered blob yields a decoy (no throw) and denied");
   }
 
   // --- 4. rotation: same inputs -> different blob bytes and different expected proof ---

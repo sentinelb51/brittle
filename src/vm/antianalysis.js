@@ -10,8 +10,8 @@
 //   bit2  a hooked native (Function.prototype.toString no longer "[native code]")
 //   bit3  large outer/inner window delta (docked devtools) -- STRICT only (noisy)
 //
-// Cost to reverser: must defeat every enabled signal simultaneously and keep the fold at
-// exactly 0. Defeated by: patching each check to report clean. Rotation: patches are
+// Cost to the analyst: must satisfy every enabled signal simultaneously and keep the fold at
+// exactly 0. Overcome by: patching each check to report clean. Rotation: patches are
 // per-build; the next mint reshuffles the surrounding engine and re-binds keys, so a patch
 // set expires with the session.
 

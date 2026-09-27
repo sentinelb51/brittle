@@ -19,9 +19,9 @@
     <p class="muted">
       Each click mints a fresh per-session blob (new opcode map, keys, structure), runs it in
       the WASM-backed engine, and redeems the proof. Open devtools and click again: the debugger
-      signal folds into the proof and the server denies. Reload: the previous blob is dead.
+      signal folds into the proof and the server denies. Reload: the previous blob is expired.
     </p>
-    <label><input type="checkbox" id="strict" /> strict anti-analysis (also flags docked devtools by window size)</label>
+    <label><input type="checkbox" id="strict" /> strict instrumentation check (also flags docked devtools by window size)</label>
     <button id="go">Request &amp; unlock</button>
     <div id="out">idle.</div>
 
@@ -36,7 +36,7 @@
           out.className = r.granted ? "ok" : "bad";
           out.textContent =
             (r.granted ? "GRANTED\n" : `DENIED (${r.reason})\n`) +
-            `anti-analysis signal: 0x${(r.signal >>> 0).toString(16)}\n` +
+            `instrumentation signal: 0x${(r.signal >>> 0).toString(16)}\n` +
             `proof: ${r.proof}`;
         } catch (e) {
           out.className = "bad";

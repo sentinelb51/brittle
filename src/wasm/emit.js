@@ -2,8 +2,8 @@
 //
 // Why WASM: the sensitive MIX round and the key schedule move off the JS surface. The
 // 8 key words live in WASM linear memory (set via set_key); mix_step reads them there,
-// so the JS bridge never sees the key material in a variable and a reverser faces WASM
-// reversing (a higher bar than beautified JS). Emitting the bytes ourselves also means
+// so the JS bridge never sees the key material in a variable and an analyst faces WASM
+// analysis (a higher bar than beautified JS). Emitting the bytes ourselves also means
 // the module can later be regenerated per session (permuted locals, reordered funcs,
 // junk locals) as another rotation surface — the hook is here.
 //

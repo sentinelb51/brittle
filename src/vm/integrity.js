@@ -6,8 +6,8 @@
 // Patch the stub or the wasm and the word changes -> master changes -> the proof diverges
 // many ops later. We fold, never compare, so there is no "if(hash!=X) fail" site to nop.
 //
-// Cost to reverser: cannot edit the shipped code without shifting every downstream value.
-// Defeated by: recomputing/forging the word after patching AND re-encrypting under it.
+// Cost to the analyst: cannot edit the shipped code without shifting every downstream value.
+// Overcome by: recomputing the word after patching AND re-encrypting under it.
 // Rotation: the word is only half the binding; keys also depend on origin/token/fp/nonce,
 // which rotate per session, so a forged word alone still fails the next challenge.
 

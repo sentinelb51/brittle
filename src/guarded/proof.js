@@ -1,15 +1,15 @@
 // proof.js — THE GUARDED PROGRAM (the secret). Authored in the readable DSL; it becomes
-// hostile only after mint-time mutation. Its job: fold the challenge nonce together with
+// opaque only after mint-time mutation. Its job: fold the challenge nonce together with
 // every binding signal into a 256-bit proof the server can independently predict.
 //
 // This program IS the challenge-response. There is no separate "unlock" logic to hide:
-// producing the correct proof for a fresh nonce is the service. A lifted blob cannot
+// producing the correct proof for a fresh nonce is the service. A copied blob cannot
 // produce it on another origin/machine (different env => different key => garbage), and
 // cannot replay it (the server issues a fresh nonce per session).
 //
 // Stage 0 folds server-known bindings (nonce, token, origin). Stage 1 — which only
 // decrypts after stage 0 runs — folds environment/integrity bindings (fingerprint,
-// anti-analysis signal, stub integrity) and the master word. Splitting this way means a
+// instrumentation signal, stub integrity) and the master word. Splitting this way means a
 // static dump that hasn't executed stage 0 cannot even read the environment-binding
 // half of the program.
 
@@ -27,7 +27,7 @@ export const guardedProof = [
 
   // --- stage 1: environment + integrity bindings (decrypts only after stage 0) ---
   ["LDENV", "r4", "FP0"], // device fingerprint
-  ["LDENV", "r5", "SIGNAL"], // anti-analysis signal (CLEAN => 0)
+  ["LDENV", "r5", "SIGNAL"], // instrumentation signal (CLEAN => 0)
   ["MIX", "r4", "r4", "r5"],
   ["LDENV", "r6", "INTEGRITY"], // stub+wasm self-hash
   ["MIX", "r4", "r4", "r6"],

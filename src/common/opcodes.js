@@ -1,5 +1,5 @@
 // opcodes.js — the CANONICAL opcode set (names + arity). These names are stable and
-// human-facing (assembler, SPEC). The *numbers* a engine dispatches on are assigned fresh
+// human-facing (assembler, SPEC). The *numbers* an engine dispatches on are assigned fresh
 // every mint by the mutation pass, so a handler-table index leaks nothing across
 // sessions. Arity is (dst?, ...operands) described per-op below.
 //
@@ -11,7 +11,7 @@
 //
 // The set is intentionally tiny: an ARX register machine. Anything the guarded program
 // needs is expressible as add/xor/mul/rotate/mix over u32, which is also exactly what
-// lifts cleanly into WASM.
+// moves cleanly into WASM.
 
 export const OPS = {
   CONST: { operands: ["R", "C"] }, // R = decrypt(constant C)

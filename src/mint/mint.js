@@ -8,7 +8,7 @@ import { assemble } from "../ir/assemble.js";
 import { mintBlob } from "./mutate.js";
 import { expectedProof } from "./reference.js";
 
-export const SIGNAL_CLEAN = 0; // the anti-analysis signal in an untampered environment
+export const SIGNAL_CLEAN = 0; // the instrumentation signal in an untampered environment
 
 const SESSION_TTL_MS = 60_000; // short shelf life; tune per deployment
 
