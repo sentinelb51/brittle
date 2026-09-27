@@ -4,7 +4,7 @@
 // Flow:
 //   1. compute fingerprint, POST /session  -> { id, token, nonce, blob }
 //   2. gather live environment (origin, fp, anti-analysis signal, self-integrity)
-//   3. decode+run the blob in the VM (WASM MIX core) -> proof
+//   3. decode+run the blob in the engine (WASM MIX core) -> proof
 //   4. POST /prove { id, proof } -> granted / denied
 //
 // The client computes integrity/signal LOCALLY and never trusts the server's copy: if the

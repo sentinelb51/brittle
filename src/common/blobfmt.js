@@ -1,4 +1,4 @@
-// blobfmt.js — the on-the-wire blob byte layout, shared so the mint encoder and the VM
+// blobfmt.js — the on-the-wire blob byte layout, shared so the mint encoder and the engine
 // decoder cannot drift. The blob is a Uint8Array (the mission's "encoded typed array").
 //
 // After the outer env-XOR layer is removed, the plaintext structure is:

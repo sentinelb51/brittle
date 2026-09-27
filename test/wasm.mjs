@@ -1,5 +1,5 @@
 // wasm.mjs — verify the WASM handler core validates, matches the JS arx bit-for-bit,
-// keeps its key schedule in linear memory (mix_step), and can stand in as the VM's MIX
+// keeps its key schedule in linear memory (mix_step), and can stand in as the engine's MIX
 // handler with the full e2e loop still passing.
 
 import assert from "node:assert/strict";
@@ -34,14 +34,14 @@ async function main() {
   }
   ok("wasm mix_step() reads the key schedule from linear memory");
 
-  // full e2e with the WASM core as the VM's MIX handler
+  // full e2e with the WASM core as the engine's MIX handler
   const ORIGIN = "https://app.example.com", INT = 0xabcdef01, FP = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
   const svc = new MintService(guardedProof, { allowedOrigin: ORIGIN, integrity: INT });
   const s = await svc.createSession(FP);
   const env = { origin: ORIGIN, token: s.token, nonce: s.nonce, fpHash: FP, signal: SIGNAL_CLEAN, integrity: INT };
   const wcore = await loadWasmCore(); // keyless: interp passes k explicitly
   const proof = await runBlob(s.blob, env, { mixFn: wcore.mix });
-  assert.equal(svc.validate(s.id, proof).ok, true, "wasm-backed VM proof must validate");
+  assert.equal(svc.validate(s.id, proof).ok, true, "wasm-backed engine proof must validate");
   ok("full mint->decode->execute loop passes with the WASM MIX core");
 
   // memory-key path: same blob, MIX driven by mix_step reading the schedule from WASM

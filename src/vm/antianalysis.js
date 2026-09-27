@@ -12,7 +12,7 @@
 //
 // Cost to reverser: must defeat every enabled signal simultaneously and keep the fold at
 // exactly 0. Defeated by: patching each check to report clean. Rotation: patches are
-// per-build; the next mint reshuffles the surrounding VM and re-binds keys, so a patch
+// per-build; the next mint reshuffles the surrounding engine and re-binds keys, so a patch
 // set expires with the session.
 
 const DEBUGGER_STALL_MS = 100;

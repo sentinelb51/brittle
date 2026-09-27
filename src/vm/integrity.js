@@ -1,6 +1,6 @@
 // integrity.js — a runtime self-hash folded into the key schedule and proof.
 //
-// The VM hashes artifacts it depends on (the WASM bytes, and — in a real build — the
+// The engine hashes artifacts it depends on (the WASM bytes, and — in a real build — the
 // fetched stub source) into one u32 word. The server ships the same word (it computed it
 // over the same artifacts), so an untampered client reproduces it and the proof matches.
 // Patch the stub or the wasm and the word changes -> master changes -> the proof diverges

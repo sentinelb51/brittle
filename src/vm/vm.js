@@ -1,9 +1,9 @@
 // vm.js — the client half. Decode the per-session blob against the live environment and
-// execute it to produce the challenge proof. This is what ships (minus obfuscation and
+// execute it to produce the challenge proof. This is what ships (minus transformation and
 // the WASM lift, which wrap but do not change it).
 //
 // Key facts that make this small:
-//  * Register renaming is an identity relabeling applied uniformly, so the VM runs the
+//  * Register renaming is an identity relabeling applied uniformly, so the engine runs the
 //    mutated register indices directly in a totalRegs-sized file. No un-permutation.
 //  * Keys are never in the blob; they are re-derived here from the environment. Wrong
 //    origin / token / fingerprint / debugger-signal / patched-stub => wrong master =>

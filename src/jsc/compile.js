@@ -1,4 +1,4 @@
-// jsc/compile.js — compile a marked JS function into brittle JS-VM bytecode (src/jsvm/vm.js).
+// jsc/compile.js — compile a marked JS function into brittle JS-engine bytecode (src/jsvm/vm.js).
 // This is the "feed a .js file / mark a function" front end. acorn parses to an AST; we
 // lower a supported subset to a stack-machine module: { consts, names, functions, entry }.
 //
@@ -12,7 +12,7 @@
 // async/await, generators, spread/rest, destructuring, labeled break, computed compound
 // assignment/update, getters/setters, delete, with, tagged templates, regex literals.
 //
-// Parity: arithmetic/compare/logic use native operators in the VM, so a supported function
+// Parity: arithmetic/compare/logic use native operators in the engine, so a supported function
 // produces identical results to running the original source. test/jsvm.mjs checks this.
 
 import { parse } from "acorn";
@@ -510,7 +510,7 @@ const JUMP_OPS = new Set([OP.JMP, OP.JMP_IF_FALSE, OP.JMP_IF_TRUE]);
 
 // Pack a proto's variable-length instruction tuples (number[][], convenient to emit and
 // backpatch) into one flat Int32Array laid out [op, ...operands, op, ...]. A flat typed
-// array lets the VM dispatch loop read opcodes/operands with monomorphic integer indexing
+// array lets the engine dispatch loop read opcodes/operands with monomorphic integer indexing
 // instead of chasing a pointer to a sub-array per instruction.
 //
 // Jump targets were stored by the compiler as INSTRUCTION indices; here we rewrite each to

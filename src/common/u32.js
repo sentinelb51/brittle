@@ -1,5 +1,5 @@
 // u32.js — 32-bit unsigned ARX primitives, shared verbatim by the server mint and
-// the client VM. The whole system's correctness rests on both sides computing the
+// the client engine. The whole system's correctness rests on both sides computing the
 // *same* integer arithmetic, so this file is the single source of truth for it.
 //
 // Everything is add-rotate-xor over uint32 lanes: cheap, branch-free, and it maps
@@ -99,7 +99,7 @@ export function keystreamBytes(seed, nbytes) {
   return out;
 }
 
-// FNV-1a checksum over bytes -> u32. Used for blob self-integrity: the VM folds the
+// FNV-1a checksum over bytes -> u32. Used for blob self-integrity: the engine folds the
 // checksum of its decoded blob into the proof, and the server folds the checksum it
 // computed at mint. Any tamper (even to a junk byte) changes it and diverges the proof.
 export function checksum(bytes) {

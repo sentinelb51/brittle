@@ -1,4 +1,4 @@
-// kdf.js — environment-bound key derivation, shared by mint (server) and VM (client).
+// kdf.js — environment-bound key derivation, shared by mint (server) and engine (client).
 //
 // The decode key, the constant keystream, and the WASM key-schedule words are all
 // expanded from ONE master seed. That seed is SHA-256 over the session environment:

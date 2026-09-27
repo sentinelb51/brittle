@@ -15,10 +15,10 @@
     </style>
   </head>
   <body>
-    <h1>brittle &mdash; server-rotated self-protecting VM</h1>
+    <h1>brittle &mdash; server-rotated self-protecting engine</h1>
     <p class="muted">
       Each click mints a fresh per-session blob (new opcode map, keys, structure), runs it in
-      the WASM-backed VM, and redeems the proof. Open devtools and click again: the debugger
+      the WASM-backed engine, and redeems the proof. Open devtools and click again: the debugger
       signal folds into the proof and the server denies. Reload: the previous blob is dead.
     </p>
     <label><input type="checkbox" id="strict" /> strict anti-analysis (also flags docked devtools by window size)</label>

@@ -22,7 +22,7 @@ written, the defense isn't understood well enough to ship.
 ## 2. Architecture: server-rotated disposable client
 
 The client is throwaway. The server mints a fresh blob per session — fresh opcode map,
-fresh keys, fresh structure — and validates a challenge-response the VM computes. A
+fresh keys, fresh structure — and validates a challenge-response the engine computes. A
 dumped blob dies at the next mint.
 
 ```
@@ -30,7 +30,7 @@ guarded source ──▶ canonical IR/bytecode ──▶ per-session mutation (s
                                                                                    │
    browser: fingerprint ─┐                                                         ▼
    POST /session ────────┴───────────────────────────────────── mint + challenge (nonce)
-   run blob in VM (WASM MIX core) ──▶ proof ──▶ POST /prove ──▶ server validates ──▶ grant/deny
+   run blob in engine (WASM MIX core) ──▶ proof ──▶ POST /prove ──▶ server validates ──▶ grant/deny
 ```
 
 Files: `src/mint/*` (server), `src/vm/*` (client), `src/wasm/*` (handler core),
@@ -89,7 +89,7 @@ Each mint reshuffles, and embeds the reshuffling **encrypted** in the blob:
 - **Opcode bytes** — each canonical op gets a fresh distinct byte (`opTable`). A handler
   index leaks nothing across sessions.
 - **Register renaming + decoys** — a full permutation over real+decoy registers. It is an
-  identity relabeling (applied uniformly), so the VM runs mutated indices directly; the
+  identity relabeling (applied uniformly), so the engine runs mutated indices directly; the
   reverser cannot assume register roles persist.
 - **Constant re-encryption** — the pool is XORed with a per-session key; `CONST` decrypts
   on use.
@@ -119,7 +119,7 @@ In the demo, stage 1 (the environment/integrity bindings) only appears after sta
 ## 7. Encryption layers — `src/mint/mutate.js`, `src/vm/vm.js`
 
 - **Outer (env) layer:** the whole blob is XORed with a keystream from `master`. Wrong
-  environment ⇒ the header magic fails ⇒ the VM returns a poisoned proof.
+  environment ⇒ the header magic fails ⇒ the engine returns a poisoned proof.
 - **Inner (stage) layer:** later stages additionally XORed with their live-derived key.
 
 Stream ciphers here provide *opacity + binding*, not cryptographic confidentiality against
@@ -152,7 +152,7 @@ timing, console getter trap, hooked-native `toString`, and (strict) window size 
 - **Cost:** every enabled check must be defeated *simultaneously* and the fold held at
   exactly 0; the failure is delocalized from the check.
 - **Defeated by:** patching each check to report clean.
-- **Rotation:** patches are per-build; the next mint reshuffles the surrounding VM and
+- **Rotation:** patches are per-build; the next mint reshuffles the surrounding engine and
   re-binds keys, so a patch set expires with the session. (Signals are conservative to
   avoid false positives; a real deployment tunes thresholds and adds signals.)
 
@@ -160,10 +160,10 @@ timing, console getter trap, hooked-native `toString`, and (strict) window size 
 
 Two integrity bindings, both **folded, never compared**:
 
-- **Code integrity** (`integrity` word): the VM hashes its dependencies (WASM bytes; a
+- **Code integrity** (`integrity` word): the engine hashes its dependencies (WASM bytes; a
   real build also folds the fetched stub source) into a word the server also ships and
   feeds into the KDF. Patch the code ⇒ word changes ⇒ `master` changes ⇒ proof diverges.
-- **Blob integrity** (`checksum`, `src/common/u32.js` + `src/vm/vm.js`): the VM checksums
+- **Blob integrity** (`checksum`, `src/common/u32.js` + `src/vm/vm.js`): the engine checksums
   the *decoded* blob bytes (right after removing the outer layer, before peeling stages)
   and folds that into the proof via `sealProof`; the server folds the checksum it computed
   at mint. Flip **any** blob byte — even inside a junk instruction — and the checksums
@@ -184,17 +184,17 @@ deterministic, env-derived value that never ran the guarded program) — never t
 server simply sees a non-match. The reverser gets no localized "trap tripped" signal to
 bisect against.
 
-## 11b. Protecting real JS: the JS VM + compiler — `src/jsvm/`, `src/jsc/`
+## 11b. Protecting real JS: the JS engine + compiler — `src/jsvm/`, `src/jsc/`
 
 This is the obfuscator.io-parity path: *feed a JS function, run it as bytecode in a custom
-VM* ("the marked function stops existing as JavaScript"). It is separate from the
-integer-ARX proof VM above — different job, shared protection philosophy.
+engine* ("the marked function stops existing as JavaScript"). It is separate from the
+integer-ARX proof engine above — different job, shared protection philosophy.
 
-- **`src/jsvm/vm.js`** — a stack-based VM over real JS *values* (numbers, strings, booleans,
+- **`src/jsvm/vm.js`** — a stack-based engine over real JS *values* (numbers, strings, booleans,
   null/undefined, arrays, objects, closures). Closures use a runtime environment chain
   (`{slots, parent}`); a closure carries its defining frame, upvalues walk `parent`.
   Arithmetic/compare/logic use native operators, so output is identical to the original.
-- **`src/jsc/compile.js`** — `acorn` AST → VM module `{consts, names, functions, entry}`.
+- **`src/jsc/compile.js`** — `acorn` AST → engine module `{consts, names, functions, entry}`.
   Supports numbers/strings/booleans/null/undefined, `let`/`const`/`var`, arithmetic,
   bitwise, comparison, logical (`&& || ??` short-circuit), ternary, unary, update (`++`/`--`),
   assignment (`=` and compound), `if`/`else`, `while`, `do/while`, `for`, `break`/`continue`,
@@ -211,10 +211,10 @@ Not yet supported (thrown with a clear message): `this`, `new`/`class`, `try/cat
 compound assignment, postfix `++/--` on members, getters/setters, `delete`, regex literals.
 
 **Model, matching obfuscator.io:** you don't virtualize a whole app (10–100× slower); you
-mark crown-jewel functions. The VM produces stable, readable canonical opcodes here; the
+mark crown-jewel functions. The engine produces stable, readable canonical opcodes here; the
 per-build opacity layer (permuted opcodes, encrypted constants, junk, and replacing the
-marked function with a VM-loader stub + rotation binding) is the **next** step — it reuses
-the proof-VM's mutation machinery (§5–§7). Until then the JS VM is a correct execution
+marked function with a engine-loader stub + rotation binding) is the **next** step — it reuses
+the proof-engine's mutation machinery (§5–§7). Until then the JS engine is a correct execution
 engine, not yet a hardened artifact.
 
 ## 12. What is built vs. designed-not-built
@@ -223,20 +223,20 @@ Built and tested headlessly (`npm test`, 27 checks): the whole proof loop — ca
 mutation, layered + staged encryption, env binding, WASM MIX core (with the round key
 served from linear memory via `mix_step` on the live client path — see §8), challenge-
 response, rotation, replay rejection, blob + code integrity, and the negative cases (wrong
-origin/fp/signal/integrity, tampered blob); **plus the JS VM + JS→bytecode compiler**
+origin/fp/signal/integrity, tampered blob); **plus the JS engine + JS→bytecode compiler**
 (§11b) that runs real marked functions bit-identically to native.
 
 Designed here, hooks present, not yet wired (each is a rotation surface or hardening step,
 not a correctness gap):
-- **Opacity + rotation for the JS VM** — apply the proof-VM's per-session mutation
+- **Opacity + rotation for the JS engine** — apply the proof-engine's per-session mutation
   (permuted opcodes, encrypted constants, junk, staged decrypt) and server rotation to the
-  JS-VM module, and a packager that replaces a marked function in a source file with a
-  VM-loader stub. This turns the correct JS VM into a hardened, rotating artifact.
-- **Worker split** — run the VM/watchdog in a Web Worker with a cross-thread heartbeat
+  JS-engine module, and a packager that replaces a marked function in a source file with a
+  engine-loader stub. This turns the correct JS engine into a hardened, rotating artifact.
+- **Worker split** — run the engine/watchdog in a Web Worker with a cross-thread heartbeat
   feeding integrity, so pausing the main thread doesn't expose everything.
 - **Per-session WASM** — parameterize `emitWasm()` to permute locals / reorder funcs /
   inject junk per mint.
-- **Outer JS obfuscator** — run the stub through string-array rotation + CFF as the last
+- **Outer JS transform** — run the stub through string-array rotation + CFF as the last
   build step (the last, cheap layer; not load-bearing).
 - **Constant re-encode-after-use** — currently decrypt-on-use; re-encrypt the scratch to
   keep plaintext constants out of memory between uses.

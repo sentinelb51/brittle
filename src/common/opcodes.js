@@ -1,5 +1,5 @@
 // opcodes.js — the CANONICAL opcode set (names + arity). These names are stable and
-// human-facing (assembler, SPEC). The *numbers* a VM dispatches on are assigned fresh
+// human-facing (assembler, SPEC). The *numbers* a engine dispatches on are assigned fresh
 // every mint by the mutation pass, so a handler-table index leaks nothing across
 // sessions. Arity is (dst?, ...operands) described per-op below.
 //

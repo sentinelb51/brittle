@@ -1,4 +1,4 @@
-// stage.js — staged-bytecode key derivation, shared by mint and VM.
+// stage.js — staged-bytecode key derivation, shared by mint and engine.
 //
 // Stage k+1's instruction bytes are encrypted under a seed that only exists once stage
 // k has executed: it is folded from the live proof accumulator at the stage boundary.

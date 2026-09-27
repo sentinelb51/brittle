@@ -1,7 +1,7 @@
 // jsvm/vm.js — a stack-based virtual machine that executes real JS *values* (numbers,
 // strings, booleans, null/undefined, arrays, objects, closures). This is the execution
 // engine a marked JS function is compiled down to (see src/jsc/compile.js), matching the
-// obfuscator.io VM model: "the marked function stops existing as JavaScript" — it becomes
+// obfuscator.io engine model: "the marked function stops existing as JavaScript" — it becomes
 // bytecode only this interpreter understands.
 //
 // Design notes:
@@ -9,7 +9,7 @@
 //    statement is stack-neutral. This keeps the compiler simple and the invariant checkable.
 //  * Closures: each call creates a frame { slots, parent }. A closure value carries the
 //    frame it was defined in as `env`; upvalue access walks `parent` `hops` times. This is
-//    the standard environment-chain model — correct over fast, which suits a protection VM.
+//    the standard environment-chain model — correct over fast, which suits a protection engine.
 //  * Arithmetic/compare/logic use native JS operators, so results are bit-for-bit identical
 //    to running the original source for every construct v1 supports.
 //
@@ -62,7 +62,7 @@ function makeClosure(proto, env) {
 }
 const isClosure = (v) => v && typeof v === "object" && v.__brittleClosure === true;
 
-export function createVM(module, globals = {}) {
+export function createEngine(module, globals = {}) {
   const { consts, names, functions } = module;
 
   // Hoisted out of runProto so it isn't reallocated on every frame (matters under
@@ -70,11 +70,11 @@ export function createVM(module, globals = {}) {
   function callValue(fn, callArgs, thisVal) {
     if (isClosure(fn)) return runProto(fn.proto, fn.env, callArgs, thisVal);
     if (typeof fn === "function") {
-      // Crossing into a host function: any VM closure among the args (e.g. the callback
+      // Crossing into a host function: any engine closure among the args (e.g. the callback
       // in arr.map(x => ...), filter, reduce, sort(cmp), forEach) is a plain object the
       // host can't invoke. Trampoline each one into a real JS function so the host can
-      // call it back into the VM. Only marshalled on the way out — closures re-entered
-      // by the VM itself never take this path.
+      // call it back into the engine. Only marshalled on the way out — closures re-entered
+      // by the engine itself never take this path.
       for (let i = 0; i < callArgs.length; i++) {
         const c = callArgs[i];
         if (isClosure(c)) callArgs[i] = (...xs) => runProto(c.proto, c.env, xs, undefined);

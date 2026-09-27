@@ -1,4 +1,4 @@
-// wasmcore.js — instantiate the WASM handler core and expose it to the VM.
+// wasmcore.js — instantiate the WASM handler core and expose it to the engine.
 //
 // The key schedule is loaded into WASM linear memory via set_key; mix_step reads keys
 // from there, so on the browser path the key words never live in a JS variable during

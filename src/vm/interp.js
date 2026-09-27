@@ -6,7 +6,7 @@
 // the environment matches and nothing was tampered. That single equality is the whole
 // challenge-response check (see docs/SPEC.md, "Load-bearing invariant").
 //
-// The interpreter is resumable: it mutates a `state` object so the client VM can run
+// The interpreter is resumable: it mutates a `state` object so the client engine can run
 // one stage, derive the next stage's key from live state, decrypt it, and continue.
 //
 // `resolved` instructions have CONST literals already inlined (server: plaintext;
@@ -100,7 +100,7 @@ export function runSlice(state, code, { envVector, mixFn, keyWords, mixStep }) {
         break;
       case "STAGE":
         // Boundary marker. In a single-slice reference run this is a no-op; the client
-        // VM never passes STAGE into a slice (it splits on it). Present for symmetry.
+        // engine never passes STAGE into a slice (it splits on it). Present for symmetry.
         break;
       case "HALT":
         state.halted = true;

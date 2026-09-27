@@ -1,5 +1,5 @@
 // envvec.js — build the environment vector that LDENV reads from. Both the server
-// (validating over canonical bytecode) and the client VM (running the mutated blob)
+// (validating over canonical bytecode) and the client engine (running the mutated blob)
 // construct this vector identically from the session env, so LDENV yields the same
 // words on both sides. This is what lets the guarded program fold origin/token/fp/
 // nonce/signal/integrity into its output in a program-defined way.

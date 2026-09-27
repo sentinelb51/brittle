@@ -1,15 +1,15 @@
-// jsvm.mjs — prove the JS->bytecode compiler + JS-value VM run REAL JS correctly:
+// jsvm.mjs — prove the JS->bytecode compiler + JS-value engine run REAL JS correctly:
 // for each function, compile+virtualize it and compare its output to the native function
-// over many inputs. This is the "feed a JS function, run it through the custom VM" claim.
+// over many inputs. This is the "feed a JS function, run it through the custom engine" claim.
 
 import assert from "node:assert/strict";
 import { compileFunctionSource } from "../src/jsc/compile.js";
-import { createVM } from "../src/jsvm/vm.js";
+import { createEngine } from "../src/jsvm/vm.js";
 
 let pass = 0;
 const ok = (n) => (console.log(`  ✓ ${n}`), pass++);
 
-// host globals the VM may reference
+// host globals the engine may reference
 const globals = { Math, JSON, Object, Array, String, Number, Boolean, parseInt, parseFloat, isNaN };
 
 const eq = (a, b) => {
@@ -20,10 +20,10 @@ const eq = (a, b) => {
 function check(name, src, cases) {
   const native = eval(`(${src})`);
   const mod = compileFunctionSource(src);
-  const vm = createVM(mod, globals);
+  const engine = createEngine(mod, globals);
   for (const args of cases) {
     const want = native(...args);
-    const got = vm(...args);
+    const got = engine(...args);
     assert.ok(eq(want, got), `${name}(${JSON.stringify(args)}): want ${JSON.stringify(want)} got ${JSON.stringify(got)}`);
   }
   ok(`${name}  (${cases.length} cases, ${mod.functions.length} fn, ${mod.functions.reduce((s, f) => s + f.code.length, 0)} words)`);
@@ -85,7 +85,7 @@ check("license", `function verify(seed, salt){
 }`, [[12345, "void"], [999, "abc"], [0, ""]]);
 
 // 11. update expressions: ++/-- always coerce to Number (never string-concat), across
-// prefix/postfix and identifier/member targets — the kind of edge the VM must match.
+// prefix/postfix and identifier/member targets — the kind of edge the engine must match.
 check("update", `function(){
   let s = "5"; let a = s++; let b = ++s;        // string operand -> numeric result
   let o = { n: 10 }; let c = o.n++; let d = --o.n; // member postfix + prefix
