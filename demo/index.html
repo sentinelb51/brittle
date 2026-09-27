@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>brittle demo</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+      h1 { font-size: 20px; }
+      button { font: inherit; padding: 8px 14px; cursor: pointer; }
+      #out { white-space: pre-wrap; word-break: break-all; border: 1px solid gray; border-radius: 6px; padding: 12px; margin-top: 16px; min-height: 3em; }
+      .ok { color: #16794a; } .bad { color: #b4232c; } .muted { opacity: .7; }
+      label { display: block; margin: 12px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>brittle &mdash; server-rotated self-protecting VM</h1>
+    <p class="muted">
+      Each click mints a fresh per-session blob (new opcode map, keys, structure), runs it in
+      the WASM-backed VM, and redeems the proof. Open devtools and click again: the debugger
+      signal folds into the proof and the server denies. Reload: the previous blob is dead.
+    </p>
+    <label><input type="checkbox" id="strict" /> strict anti-analysis (also flags docked devtools by window size)</label>
+    <button id="go">Request &amp; unlock</button>
+    <div id="out">idle.</div>
+
+    <script type="module">
+      import { unlock } from "../src/vm/loader.js";
+      const out = document.getElementById("out");
+      document.getElementById("go").addEventListener("click", async () => {
+        out.textContent = "minting + running...";
+        out.className = "";
+        try {
+          const r = await unlock({ strict: document.getElementById("strict").checked });
+          out.className = r.granted ? "ok" : "bad";
+          out.textContent =
+            (r.granted ? "GRANTED\n" : `DENIED (${r.reason})\n`) +
+            `anti-analysis signal: 0x${(r.signal >>> 0).toString(16)}\n` +
+            `proof: ${r.proof}`;
+        } catch (e) {
+          out.className = "bad";
+          out.textContent = "error: " + e;
+        }
+      });
+    </script>
+  </body>
+</html>

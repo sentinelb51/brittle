@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Build output (WASM is emitted on demand; runtime doesn't need the file)
+src/wasm/core.wasm
+
+# Logs / OS cruft
+*.log
+.DS_Store
+Thumbs.db
